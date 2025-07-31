@@ -86,6 +86,7 @@ import com.mks.api.response.WorkItemIterator;
  */
 public class IntegritySCM extends AbstractIntegritySCM implements Serializable
 {
+  /* 
 	private static final long serialVersionUID = 7559894846609712683L;
     private static final Logger LOGGER = Logger.getLogger("IntegritySCM");
     private static final Map<String, IntegrityCMProject> projects = new ConcurrentHashMap<>();
@@ -115,6 +116,8 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable
     private boolean fetchChangedWorkspaceFiles = false;
     private boolean deleteNonMembers = false;
     private int checkoutThreadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+
+  */
 
   /**
    * Create a constructor that takes non-transient fields, and add the
