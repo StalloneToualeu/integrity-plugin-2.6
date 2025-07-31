@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.logging.Logger;
 
+
+//import hudson.scm.IntegritySCM.DescriptorImpl;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
