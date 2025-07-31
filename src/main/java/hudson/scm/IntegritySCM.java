@@ -65,6 +65,7 @@ public class IntegritySCM extends SCM implements Serializable {
     public static final int MIN_PORT_VALUE = 1;
     public static final int MAX_PORT_VALUE = 65535;
     public static final int DEFAULT_THREAD_POOL_SIZE = 5;
+    public static final int DEFAULT_CHECKOUT_THREAD_TIMEOUT = 20;
     public static final SimpleDateFormat SDF = new SimpleDateFormat("MMM dd, yyyy h:mm:ss a");
     private final String ciServerURL = (null == Jenkins.getInstance().getRootUrl() ? "" : Jenkins.getInstance().getRootUrl());
     private String integrityURL;

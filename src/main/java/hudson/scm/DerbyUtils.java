@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import com.mks.api.si.SIModelTypeName;
 
 import hudson.model.TaskListener;
 import hudson.scm.IntegritySCM.DescriptorImpl;
+import hudson.scm.api.option.IAPIFields;
 
 /**
  * This class provides certain utility functions for working with the embedded
@@ -493,6 +495,47 @@ public class DerbyUtils {
 
         return tableCreated;
     }
+
+    /**
+     * Create or return existing CP cache table
+     * 
+     * @param i
+     * @param configurationName
+     * 
+     * @param db Derby database connection
+     * @return true/false depending on the success of the operation
+     */
+    public static synchronized boolean getCPCacheTable(ConnectionPoolDataSource dataSource,
+        String cpCacheTableName)
+    {
+      boolean tableCreated = false;
+      try
+      {
+        if (executeStmt(dataSource, SELECT_CP_1.replaceFirst("CM_PROJECT_CP", cpCacheTableName)))
+        {
+          LOGGER.fine("A prior set of PTC RV&S SCM CP cache table for this job detected.");
+        }
+      } catch (SQLException ex)
+      {
+        LOGGER.fine(ex.getMessage());
+        try
+        {
+          LOGGER.fine(String.format("PTC RV&S SCM CP cache table '%s' does not exist, creating...",
+              cpCacheTableName));
+          tableCreated = executeStmt(dataSource,
+              CREATE_PROJECT_CP_TABLE.replaceFirst("CM_PROJECT_CP", cpCacheTableName));
+        } catch (SQLException sqlex)
+        {
+          LOGGER.fine(String.format("Failed to create PTC RV&S SCM project CP cache table '%s'",
+              cpCacheTableName));
+          LOGGER.log(Level.SEVERE, "SQLException", sqlex);
+          tableCreated = false;
+        }
+      }
+
+      return tableCreated;
+    }
+
 
     private static boolean dropAndCreateProjectCache(ConnectionPoolDataSource dataSource, String tableName) {
         boolean tableCreated;
@@ -1211,5 +1254,81 @@ public class DerbyUtils {
         }
 
         return dirList;
+    }
+
+    /**
+     * Cache the list of CPs (all states except "closed"). THis is to ensure that all CPs for a
+     * project are tracked by Jenkins
+     * 
+     * @param cpCacheTable
+     * @param cp
+     * @param cpState
+     * @param operation
+     * @throws SQLException
+     */
+    public static Set<String> doCPCacheOperations(String cpCacheTable, String cp, String cpState,
+        String operation) throws SQLException
+    {
+      Set<String> cachedCPIds = null;
+
+      // Initialize our db connection
+      Connection db = null;
+      PreparedStatement stmt = null;
+      PreparedStatement cachedCPSelect = null;
+      ResultSet cachedCPRS = null;
+
+      try
+      {
+        // Get a connection from our pool
+        db = DescriptorImpl.INTEGRITY_DESCRIPTOR.getDataSource().getPooledConnection()
+            .getConnection();
+        if (operation.equalsIgnoreCase(IAPIFields.ADD_OPERATION))
+        {
+          // Add CP entry to cache
+          String insertSQL = DerbyUtils.INSERT_CP_RECORD.replaceFirst("CM_PROJECT_CP", cpCacheTable);
+          stmt = db.prepareStatement(insertSQL);
+          stmt.clearParameters();
+          stmt.setString(1, cp);
+          stmt.setString(2, cpState);
+          LOGGER.log(Level.FINE, "Updating CP Cache with CP : " + cp + ", State : " + cpState);
+          stmt.executeUpdate();
+        } else if (operation.equalsIgnoreCase(IAPIFields.DELETE_OPERATION))
+        {
+          // delete the CP entry from cache
+          String deleteSQL = DerbyUtils.DELETE_CP_RECORD.replaceFirst("CM_PROJECT_CP", cpCacheTable);
+          stmt = db.prepareStatement(deleteSQL);
+          stmt.setString(1, cp);
+          stmt.executeUpdate();
+
+        } else if (operation.equalsIgnoreCase(IAPIFields.GET_OPERATION))
+        {
+          // Retrieve the list of CPs from the Derby DB
+          cachedCPIds = new HashSet<String>();
+          cachedCPSelect = db.prepareStatement(DerbyUtils.CP_SELECT.replaceFirst("CM_PROJECT_CP", cpCacheTable));
+          cachedCPRS = cachedCPSelect.executeQuery();
+          
+          while (cachedCPRS.next())
+          {
+            cachedCPIds.add(cachedCPRS.getString(1));
+          }
+        } else
+        {
+          // Do nothing
+          LOGGER.log(Level.SEVERE, "Operation :" + operation
+              + " unsupported for updating CP Cache with CP : " + cp + ", State : " + cpState);
+        }
+
+        db.commit();
+      } finally
+      {
+        // Close the insert statement
+        if (null != stmt)
+          stmt.close();
+
+        // Close the database connection
+        if (null != db)
+          db.close();
+      }
+      return cachedCPIds;
     }
 }
