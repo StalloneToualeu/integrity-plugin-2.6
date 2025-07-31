@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,7 +45,7 @@ public class IntegrityCheckoutTask implements FileCallable<Boolean>
   private static final long serialVersionUID = 1240357991626897900L;
   private static final Logger LOGGER = Logger.getLogger(IntegritySCM.class.getSimpleName());
   private static final int CHECKOUT_TRESHOLD = 5000;
-  private final List<Hashtable<CM_PROJECT, Object>> projectMembersList;
+  private final List<Map<CM_PROJECT, Object>> projectMembersList;
   private final List<String> dirList;
   private final String lineTerminator;
   private final boolean restoreTimestamp;
@@ -83,12 +84,12 @@ public class IntegrityCheckoutTask implements FileCallable<Boolean>
    * @param listener The Hudson task listener
    * @param integrityConfig Integrity Configuration Object
    */
-  public IntegrityCheckoutTask(List<Hashtable<CM_PROJECT, Object>> projectMembersList,
+  public IntegrityCheckoutTask(List<Map<CM_PROJECT, Object>> projectMembersList2,
       List<String> dirList, String alternateWorkspaceDir, String lineTerminator,
       boolean restoreTimestamp, boolean cleanCopy, boolean fetchChangedWorkspaceFiles,
       int checkoutThreadPoolSize, int checkoutThreadTimeout, TaskListener listener, IntegrityConfigurable integrityConfig)
   {
-    this.projectMembersList = projectMembersList;
+    this.projectMembersList = projectMembersList2;
     this.dirList = dirList;
     this.alternateWorkspaceDir = alternateWorkspaceDir;
     this.lineTerminator = lineTerminator;
@@ -185,10 +186,10 @@ public class IntegrityCheckoutTask implements FileCallable<Boolean>
       createFolderStructure(workspace);
 
       // Perform a synchronize of each file in the member list...
-      for (Iterator<Hashtable<CM_PROJECT, Object>> it = projectMembersList.iterator(); it
+      for (Iterator<Map<CM_PROJECT, Object>> it = projectMembersList.iterator(); it
           .hasNext();)
       {
-        Hashtable<CM_PROJECT, Object> memberInfo = it.next();
+        Map<CM_PROJECT, Object> memberInfo = it.next();
         short deltaFlag = (null == memberInfo.get(CM_PROJECT.DELTA) ? -1
             : Short.valueOf(memberInfo.get(CM_PROJECT.DELTA).toString()));
         File targetFile = new File(workspace + memberInfo.get(CM_PROJECT.RELATIVE_FILE).toString());

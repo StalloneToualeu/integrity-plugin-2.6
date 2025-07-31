@@ -155,7 +155,7 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
   {
     if (checkpointLabel == null || checkpointLabel.length() == 0)
     {
-      return IntegrityCheckpointDescriptorImpl.defaultCheckpointLabel;
+      return IntegrityCheckpointDescriptorImpl.DEFAULT_CHECKPOINT_LABEL;
     }
 
     return checkpointLabel;
@@ -279,6 +279,7 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
     }
 
     IntegrityConfigurable serverConf = getProjectSettings(build);
+    APISession api = APISession.create(getProjectSettings(build));
     // Evaluate the groovy tag name
     Map<String, String> env = build.getEnvironment(listener);
     try
@@ -311,7 +312,7 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
                 siProject.getProjectName(), siProject.getProjectRevision(), chkptLabel);
 
             // Attach label to 'subProjects'
-            for (Hashtable<CM_PROJECT, Object> memberInfo : DerbyUtils
+            for (Map<CM_PROJECT, Object> memberInfo : DerbyUtils
                 .viewSubProjects(siProject.getProjectCacheTable()))
             {
               String fullConfigPath = String.class.cast(memberInfo.get(CM_PROJECT.CONFIG_PATH));
@@ -392,7 +393,7 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
    */
   public static class IntegrityCheckpointDescriptorImpl extends BuildStepDescriptor<Publisher>
   {
-    public static final String defaultCheckpointLabel =
+    public static final String DEFAULT_CHECKPOINT_LABEL =
         "${env['JOB_NAME']}-${env['BUILD_NUMBER']}-${new java.text.SimpleDateFormat(\"yyyy_MM_dd\").format(new Date())}";
 
     public IntegrityCheckpointDescriptorImpl()
@@ -437,13 +438,13 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
     }
 
     /**
-     * Returns the defaultCheckpointLabel for a checkpoint
+     * Returns the DEFAULT_CHECKPOINT_LABEL for a checkpoint
      * 
      * @return
      */
     public String getCheckpointLabel()
     {
-      return defaultCheckpointLabel;
+      return DEFAULT_CHECKPOINT_LABEL;
     }
 
     /**

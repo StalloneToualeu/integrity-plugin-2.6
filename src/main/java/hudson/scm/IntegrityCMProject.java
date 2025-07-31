@@ -259,7 +259,7 @@ public class IntegrityCMProject implements Serializable
    * @return
    * @throws DOMException
    */
-  public String getChangeLog(String version, List<Hashtable<CM_PROJECT, Object>> projectMembersList)
+  public String getChangeLog(String version, List<Map<CM_PROJECT, Object>> projectMembersList)
       throws DOMException
   {
     try
@@ -282,10 +282,10 @@ public class IntegrityCMProject implements Serializable
       changeLogElem.appendChild(items);
 
       // Process the changes...
-      for (Iterator<Hashtable<CM_PROJECT, Object>> it = projectMembersList.iterator(); it
+      for (Iterator<Map<CM_PROJECT, Object>> it = projectMembersList.iterator(); it
           .hasNext();)
       {
-        Hashtable<CM_PROJECT, Object> memberInfo = it.next();
+        Map<CM_PROJECT, Object> memberInfo = it.next();
         if (null != memberInfo.get(CM_PROJECT.DELTA))
         {
           short deltaFlag = Short.valueOf(memberInfo.get(CM_PROJECT.DELTA).toString());
@@ -347,7 +347,7 @@ public class IntegrityCMProject implements Serializable
    * @param item XML Element representing the item node
    * @param memberInfo Hashtable representing the member information
    */
-  private Element writeChangeLog(Element item, Hashtable<CM_PROJECT, Object> memberInfo)
+  private Element writeChangeLog(Element item, Map<CM_PROJECT, Object> memberInfo)
   {
     if (null == memberInfo)
       return item;
@@ -661,7 +661,7 @@ public class IntegrityCMProject implements Serializable
   {
 
     ExecutorService executor = null;
-    Map<String, String> pjConfigHash = new Hashtable<String, String>();
+    Map<String, String> pjConfigHash = new HashMap<String, String>();
     List<Future<Void>> futures = new ArrayList<Future<Void>>();
 
     // Setup the Derby DB for this Project
@@ -752,7 +752,7 @@ public class IntegrityCMProject implements Serializable
       for (CPInfo cpInfo : membersInCP.keySet())
       {
         List<CPMember> cpMembers = membersInCP.get(cpInfo);
-        Hashtable<CM_PROJECT, Object> memberInfo = new Hashtable<CM_PROJECT, Object>();
+        Map<CM_PROJECT, Object> memberInfo = new HashMap<CM_PROJECT, Object>();
 
         for (CPMember cpMember : cpMembers)
         {

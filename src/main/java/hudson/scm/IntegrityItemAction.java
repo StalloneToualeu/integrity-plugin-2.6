@@ -726,7 +726,7 @@ public class IntegrityItemAction extends Notifier implements Serializable
               + rootProject.getScm() + "!");
       return true;
     }
-
+    APISession api = APISession.create(getProjectSettings(build));
     try
     {
       // First lets find the build item or test session id

@@ -86,6 +86,7 @@ public class IntegritySCM extends SCM implements Serializable {
     private boolean fetchChangedWorkspaceFiles = false;
     private boolean deleteNonMembers = false;
     private int checkoutThreadPoolSize = DEFAULT_THREAD_POOL_SIZE;
+    private int checkoutThreadTimeout = DEFAULT_CHECKOUT_THREAD_TIMEOUT;
 
     /**
      * Create a constructor that takes non-transient fields, and add the
@@ -929,7 +930,7 @@ public class IntegritySCM extends SCM implements Serializable {
             listener.getLogger().println("		Begin IntegrityCheckoutTask()");
             IntegrityCheckoutTask coTask = new IntegrityCheckoutTask(projectMembersList, dirList, resolvedAltWkspace, lineTerminator, restoreTimestamp,
                     ((null == prevProjectCache || prevProjectCache.length() == 0) ? true : cleanCopy),
-                    fetchChangedWorkspaceFiles, checkoutThreadPoolSize, listener, coSettings);
+                    fetchChangedWorkspaceFiles, checkoutThreadPoolSize, checkoutThreadTimeout, listener, coSettings);
 
             // Execute the IntegrityCheckoutTask.invoke() method to do the actual synchronization...
             if (workspace.act(coTask)) {

@@ -222,7 +222,7 @@ public abstract class AbstractIntegritySCM extends SCM implements Serializable
   {
     if (checkpointLabel == null || checkpointLabel.length() == 0)
     {
-      return IntegrityCheckpointDescriptorImpl.defaultCheckpointLabel;
+      return IntegrityCheckpointDescriptorImpl.DEFAULT_CHECKPOINT_LABEL;
     }
     return checkpointLabel;
   }
