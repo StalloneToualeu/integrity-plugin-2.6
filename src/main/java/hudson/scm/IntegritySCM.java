@@ -43,14 +43,18 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -62,11 +66,15 @@ import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.export.Exported;
 
 import com.mks.api.Command;
 import com.mks.api.MultiValue;
+import com.mks.api.Option;
+import com.mks.api.response.APIConnectionException;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Response;
 import com.mks.api.response.WorkItem;
@@ -78,6 +86,35 @@ import com.mks.api.response.WorkItemIterator;
  */
 public class IntegritySCM extends AbstractIntegritySCM implements Serializable
 {
+	private static final long serialVersionUID = 7559894846609712683L;
+    private static final Logger LOGGER = Logger.getLogger("IntegritySCM");
+    private static final Map<String, IntegrityCMProject> projects = new ConcurrentHashMap<>();
+    public static final String NL = System.getProperty("line.separator");
+    public static final String FS = System.getProperty("file.separator");
+    public static final int MIN_PORT_VALUE = 1;
+    public static final int MAX_PORT_VALUE = 65535;
+    public static final int DEFAULT_THREAD_POOL_SIZE = 5;
+    public static final SimpleDateFormat SDF = new SimpleDateFormat("MMM dd, yyyy h:mm:ss a");
+    private final String ciServerURL = (null == Jenkins.getInstance().getRootUrl() ? "" : Jenkins.getInstance().getRootUrl());
+    private String integrityURL;
+    private IntegrityRepositoryBrowser browser;
+    private String serverConfig;
+    private String userName;
+    private Secret password;
+    private String configPath;
+    private String includeList;
+    private String excludeList;
+    private String checkpointLabel;
+    private String configurationName;
+    private boolean cleanCopy;
+    private boolean skipAuthorInfo = true;
+    private String lineTerminator = "native";
+    private boolean restoreTimestamp = true;
+    private boolean checkpointBeforeBuild = false;
+    private String alternateWorkspace;
+    private boolean fetchChangedWorkspaceFiles = false;
+    private boolean deleteNonMembers = false;
+    private int checkoutThreadPoolSize = DEFAULT_THREAD_POOL_SIZE;
 
   /**
    * Create a constructor that takes non-transient fields, and add the
