@@ -26,6 +26,9 @@ import java.util.logging.Logger;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.BooleanUtils;
 
+import com.mks.api.Command;
+import com.mks.api.Option;
+import com.mks.api.FileOption;
 import com.mks.api.response.APIException;
 import com.mks.api.response.Field;
 import com.mks.api.response.InterruptedException;
@@ -66,10 +69,10 @@ public final class IntegrityCMMember
    */
   public static final String getName(String memberID)
   {
-    if (memberID.indexOf('/') > 0)
+    if (memberID.contains('/'))
     {
       return memberID.substring(memberID.lastIndexOf('/') + 1);
-    } else if (memberID.indexOf('\\') > 0)
+    } else if (memberID.contains('\\'))
     {
       return memberID.substring(memberID.lastIndexOf('\\') + 1);
     } else
@@ -387,7 +390,7 @@ public final class IntegrityCMMember
       String exceptionString = eh.getMessage();
 
       // Ensure exception is due to member does not exist
-      if (exceptionString.indexOf("has pending entries and can not be closed") > 0)
+      if (exceptionString.contains("has pending entries and can not be closed") )
       {
         LOGGER.fine("Close cp failed: " + exceptionString);
         LOGGER.fine("Attempting to submit cp: " + cpid);
