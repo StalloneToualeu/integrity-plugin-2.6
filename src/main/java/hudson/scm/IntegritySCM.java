@@ -138,6 +138,10 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable {
     // Initialize the class variables
     this.browser = browser;
     this.serverConfig = serverConfig;
+    final IntegrityConfigurable configuration = DescriptorImpl.INTEGRITY_DESCRIPTOR.getConfiguration(serverConfig);
+    if (null == configuration) {
+        throw new AbortException("no desSettings available.");
+    }
     if (null != userName && userName.length() > 0)
     {
       this.userName = userName;
@@ -205,6 +209,9 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable {
     this.serverConfig = serverConfig;
     IntegrityConfigurable desSettings =
         DescriptorImpl.INTEGRITY_DESCRIPTOR.getConfiguration(serverConfig);
+    if (null == desSettings) {
+        throw new APIConnectionException("Constructing IntegritySCM object failed, no desSettings");
+    }
     this.userName = desSettings.getUserName();
     this.password = desSettings.getSecretPassword();
     this.configPath = configPath;
@@ -226,7 +233,13 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable {
     this.sandboxScope = "";
 
     // Initialize the Integrity URL
-    initIntegrityURL();
+    try {
+        initIntegrityURL();
+    } catch (AbortException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+        throw new APIConnectionException();
+    }
 
     LOGGER.fine("IntegritySCM constructed!");
   }
@@ -294,7 +307,9 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable {
     } catch (SQLException sqlex)
     {
       LOGGER.severe(SQL_EXCEPTION_CAUGHT);
+	  LOGGER.severe("SQL Exception caught...");
       listener.getLogger().println(SQL_EXCEPTION_CAUGHT);
+	  listener.getLogger().println("A SQL Exception was caught!");
       listener.getLogger().println(sqlex.getMessage());
       LOGGER.log(Level.SEVERE, "SQLException", sqlex);
     }
@@ -307,6 +322,7 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable {
    * @return response Integrity API Response
    * @throws Exception 
    */
+/*
   public Response initializeCMProject(EnvVars environment, String projectCacheTable)
       throws Exception
   {
@@ -333,6 +349,34 @@ public class IntegritySCM extends AbstractIntegritySCM implements Serializable {
     return infoRes;
   }
 
+*/
+
+private Response initializeCMProject(APISession api, String projectCacheTable, String resolvedConfigPath, TaskListener listener) throws APIException {
+    // Get the project information for this project
+    Command siProjectInfoCmd = new Command(Command.SI, "projectinfo");
+    siProjectInfoCmd.addOption(new Option("project", resolvedConfigPath));
+    LOGGER.fine("Preparing to execute si projectinfo for " + resolvedConfigPath);
+
+    //WABCO:
+    listener.getLogger().println("... using this command line options:");
+    Iterator<?> optIt = siProjectInfoCmd.getOptionList().getOptions();
+    while (optIt.hasNext()) {
+        listener.getLogger().print(optIt.next() + " ");
+    }
+    //WABCO.
+
+    Response infoRes = api.runCommand(siProjectInfoCmd);
+    LOGGER.fine(infoRes.getCommandString() + " returned " + infoRes.getExitCode());
+    // Initialize our siProject class variable
+    IntegrityCMProject siProject = new IntegrityCMProject(infoRes.getWorkItems().next(), projectCacheTable);
+    // Set the project options
+    siProject.setLineTerminator(lineTerminator);
+    siProject.setRestoreTimestamp(restoreTimestamp);
+    siProject.setSkipAuthorInfo(skipAuthorInfo);
+    siProject.setCheckpointBeforeBuild(checkpointBeforeBuild);
+    projects.put(configurationName, siProject);
+    return infoRes;
+}
   /**
    * Utility function to parse the include/exclude filter
    * 
