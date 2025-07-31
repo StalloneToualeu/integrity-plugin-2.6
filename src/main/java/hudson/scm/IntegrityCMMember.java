@@ -182,6 +182,49 @@ public final class IntegrityCMMember
     return BooleanUtils.toBoolean(response.getExitCode(), 0, 1);
   }
 
+  	
+	/**
+	 * Performs a revision info on this Integrity Source File
+	 * @param api Integrity API Session
+	 * @param configPath Full project configuration path
+	 * @param memberID Member ID for this file
+	 * @param memberRev Member Revision for this file
+	 * @return User responsible for making this change
+	 */
+	public static String getAuthor(APISession api, String configPath, String memberID, String memberRev)
+	{
+		// Initialize the return value
+		String author = "unknown";
+		
+		// Construct the revision-info command
+		Command revInfoCMD = new Command(Command.SI, "revisioninfo");
+		revInfoCMD.addOption(new Option("project", configPath));
+		revInfoCMD.addOption(new Option("revision", memberRev));
+		// Add the member selection
+		revInfoCMD.addSelection(memberID);
+		try
+		{
+			// Execute the revision-info command
+			Response res = api.runCommand(revInfoCMD);
+			LOGGER.fine("Command: " + res.getCommandString() + " completed with exit code " + res.getExitCode());			
+			// Return the author associated with this update
+			if( res.getExitCode() == 0 )
+			{
+				author = res.getWorkItem(memberID).getField("author").getValueAsString();
+			}
+		}
+		catch(APIException aex)
+		{
+			ExceptionHandler eh = new ExceptionHandler(aex);
+			LOGGER.severe("API Exception caught...");
+    		LOGGER.severe(eh.getMessage());
+    		LOGGER.fine(eh.getCommand() + " returned exit code " + eh.getExitCode());
+    		aex.printStackTrace();
+		}	
+		
+		return author;
+	}
+
   /**
    * Returns the MD5 checksum hash for a file
    * 

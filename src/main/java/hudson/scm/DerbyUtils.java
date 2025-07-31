@@ -93,6 +93,23 @@ public class DerbyUtils {
     /* 0 = Unchanged; 1 = Added; 2 = Changed; 3 = Dropped */
     public static final String DROP_PROJECT_TABLE = "DROP TABLE CM_PROJECT";
     public static final String SELECT_MEMBER_1 = "SELECT " + CM_PROJECT.ID + " FROM CM_PROJECT WHERE " + CM_PROJECT.ID + " = 1";
+    
+    /** ------------ CP Cache tables -------------------- **/
+    public static final String SELECT_CP_1 =
+        "SELECT " + CM_PROJECT.ID + " FROM CM_PROJECT_CP WHERE " + CM_PROJECT.ID + " = 1";
+    public static final String CREATE_PROJECT_CP_TABLE = "CREATE TABLE CM_PROJECT_CP ("
+        + CM_PROJECT.ID + " INTEGER NOT NULL " + "PRIMARY KEY GENERATED ALWAYS AS IDENTITY "
+        + "(START WITH 1, INCREMENT BY 1), " + CM_PROJECT.CPID + " VARCHAR(32500) NOT NULL, "
+        + CM_PROJECT.CP_STATE + " VARCHAR(32500) NOT NULL)";
+    public static final String INSERT_CP_RECORD = "INSERT INTO CM_PROJECT_CP " + "(" + CM_PROJECT.CPID
+        + ", " + CM_PROJECT.CP_STATE + ") " + "VALUES (?, ?)";
+    public static final String CP_SELECT =
+        "SELECT " + CM_PROJECT.CPID + ", " + CM_PROJECT.CP_STATE + " FROM CM_PROJECT_CP";
+    public static final String DELETE_CP_RECORD =
+        "DELETE FROM CM_PROJECT_CP WHERE " + CM_PROJECT.CPID + " = ?";
+    /** ------------ CP Cache tables end -------------------- **/
+    
+    
     public static final String INSERT_MEMBER_RECORD = "INSERT INTO CM_PROJECT "
             + "(" + CM_PROJECT.TYPE + ", " + CM_PROJECT.NAME + ", " + CM_PROJECT.MEMBER_ID + ", "
             + CM_PROJECT.TIMESTAMP + ", " + CM_PROJECT.DESCRIPTION + ", " + CM_PROJECT.CONFIG_PATH + ", "
