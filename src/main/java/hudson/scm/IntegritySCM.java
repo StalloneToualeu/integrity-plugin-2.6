@@ -55,7 +55,7 @@ import com.mks.api.response.WorkItem;
  * This class provides an integration between Hudson/Jenkins for Continuous Builds and 
  * PTC Integrity for Configuration Management
  */
-public class IntegritySCM extends AbstractIntegritySCM implements Serializable
+public class IntegritySCM extends SCM implements Serializable
 {
 	private static final long serialVersionUID = 7559894846609712683L;
 	private static final Logger LOGGER = Logger.getLogger("IntegritySCM");
