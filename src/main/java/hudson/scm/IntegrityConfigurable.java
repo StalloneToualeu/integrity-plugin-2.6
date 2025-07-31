@@ -5,6 +5,7 @@
 package hudson.scm;
 
 import java.io.Serializable;
+import java.util.Objects;
 import java.util.UUID;
 
 import hudson.util.Secret;
