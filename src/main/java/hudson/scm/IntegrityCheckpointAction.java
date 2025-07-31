@@ -4,33 +4,6 @@
  *******************************************************************************/
 package hudson.scm;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.servlet.ServletException;
-
-import org.codehaus.groovy.control.CompilationFailedException;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.RejectedAccessException;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.GroovySandbox;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SecureGroovyScript;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
-import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
-import org.jenkinsci.plugins.scriptsecurity.scripts.ApprovalContext;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-
-import com.mks.api.response.APIException;
-import com.mks.api.response.Response;
-import com.mks.api.response.WorkItem;
-
 import groovy.lang.Binding;
 import hudson.AbortException;
 import hudson.Extension;
@@ -48,8 +21,40 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
+import java.io.IOException;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.ServletException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.codehaus.groovy.control.CompilationFailedException;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.RejectedAccessException;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.GroovySandbox;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.SecureGroovyScript;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.ProxyWhitelist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.whitelists.StaticWhitelist;
+import org.jenkinsci.plugins.scriptsecurity.scripts.ApprovalContext;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
+
+import com.mks.api.response.APIException;
+import com.mks.api.response.Response;
+import com.mks.api.response.WorkItem;
+
+
 
 
 public class IntegrityCheckpointAction extends Notifier implements Serializable
@@ -89,8 +94,27 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
 	Object result = new SecureGroovyScript("return \"" + expression + "\"", true, null)
 			.configuring(ApprovalContext.create()).evaluate(loader, binding);
     return Objects.toString(result.toString().trim(), "");
-  }
-
+  } 
+/*	
+	public static String evalGroovyExpression(Map<String, String> env, String expression)
+	{
+		Binding binding = new Binding();
+		binding.setVariable("env", env);
+		binding.setVariable("sys", System.getProperties());
+		CompilerConfiguration config = new CompilerConfiguration();
+		//config.setDebug(true);
+		GroovyShell shell = new GroovyShell(binding, config);
+		Object result = shell.evaluate("return \"" + expression + "\"");
+		if (result == null)
+		{
+			return "";
+		}
+		else
+		{
+			return result.toString().trim();
+		}
+	}
+*/
   /**
    * Checks if the given value is a valid Integrity Label. If it's invalid, this method gives you
    * the reason as string.
