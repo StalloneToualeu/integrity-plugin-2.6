@@ -7,6 +7,8 @@ package hudson.scm;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import com.mks.api.Command;
+import com.mks.api.Option;
 import com.mks.api.response.APIException;
 
 import hudson.FilePath;
