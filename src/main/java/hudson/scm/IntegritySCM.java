@@ -211,7 +211,11 @@ public class IntegritySCM extends SCM implements Serializable {
     public IntegrityRepositoryBrowser getBrowser() {
         return browser == null ? new IntegrityWebUI(null) : browser;
     }
-
+    
+    @Override
+    public IntegrityConfigurable getProjectSettings() {
+        return super.getProjectSettings();
+    }
     /**
      * Returns the simple server configuration name
      *
