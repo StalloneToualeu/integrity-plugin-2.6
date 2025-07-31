@@ -252,7 +252,7 @@ public class IntegrityCheckpointAction extends Notifier implements Serializable
    * @param thisBuild Jenkins AbstractBuild
    * @return
    */  
-    public IntegrityConfigurable getProjectSettings(
+  private IntegrityConfigurable getProjectSettings(
 	    AbstractBuild<?, ?> thisBuild)
     {
 	AbstractProject<?, ?> thisProject = thisBuild.getProject();

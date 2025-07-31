@@ -597,7 +597,7 @@ public abstract class AbstractIntegritySCM extends SCM implements Serializable
  /**
   * Gets the project specific user/password for this build
   */
-  public IntegrityConfigurable getProjectSettings()
+  private IntegrityConfigurable getProjectSettings()
  {
 	IntegrityConfigurable desSettings = DescriptorImpl.INTEGRITY_DESCRIPTOR
 		.getConfiguration(serverConfig);
