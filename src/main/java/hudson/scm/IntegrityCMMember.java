@@ -69,10 +69,10 @@ public final class IntegrityCMMember
    */
   public static final String getName(String memberID)
   {
-    if (memberID.contains('/'))
+    if (memberID.indexOf('/') > 0)
     {
       return memberID.substring(memberID.lastIndexOf('/') + 1);
-    } else if (memberID.contains('\\'))
+    } else if (memberID.indexOf('\\') > 0)
     {
       return memberID.substring(memberID.lastIndexOf('\\') + 1);
     } else
@@ -390,7 +390,7 @@ public final class IntegrityCMMember
       String exceptionString = eh.getMessage();
 
       // Ensure exception is due to member does not exist
-      if (exceptionString.contains("has pending entries and can not be closed") )
+      if (exceptionString.indexOf("has pending entries and can not be closed") > 0)
       {
         LOGGER.fine("Close cp failed: " + exceptionString);
         LOGGER.fine("Attempting to submit cp: " + cpid);
